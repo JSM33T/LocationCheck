@@ -1,8 +1,10 @@
-<button (click)="getLocation()">Get Location (Callback)</button>
-<button (click)="fetchAndSendLocation()">Get Location (Promise)</button>
+<!-- Button to fetch location manually -->
+<button (click)="fetchLocation()">Fetch Location</button>
 
-<p *ngIf="latitude && longitude">Latitude: {{ latitude }}, Longitude: {{ longitude }}</p>
+<!-- Button to clear cached location -->
+<button (click)="clearLocation()">Clear Location</button>
 
-
-
-<router-outlet />
+<!-- Only display latitude and longitude after they are fetched -->
+<p *ngIf="latitude !== null && longitude !== null">
+    Latitude: {{ latitude }}, Longitude: {{ longitude }}
+</p>

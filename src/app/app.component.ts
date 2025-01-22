@@ -1,6 +1,6 @@
 import { NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 @Component({
@@ -11,61 +11,50 @@ import { RouterOutlet } from '@angular/router';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'locationStuff';
   latitude: number | null = null;
   longitude: number | null = null;
+  private cachedLocation: { latitude: number, longitude: number } | null = null;
 
-  // Method 1: Callback-based
+  ngOnInit() {
+    this.getLocation(); // Automatically fetch and cache location on initialization
+  }
+
+  // Method to get location with caching
   getLocation() {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        this.latitude = position.coords.latitude;
-        this.longitude = position.coords.longitude;
-        // this.sendLocation(this.latitude, this.longitude);
-      }, (error) => {
-        console.error('Error getting location', error);
-      });
+    if (this.cachedLocation) {
+      // Use cached location if available
+      console.log('Using cached location');
     } else {
-      console.error('Geolocation is not supported by this browser.');
+      // If no cached location, fetch the location
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          this.cachedLocation = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          }; // Cache location
+        }, (error) => {
+          console.error('Error getting location', error);
+        });
+      } else {
+        console.error('Geolocation is not supported by this browser.');
+      }
     }
   }
 
-  // Method 2: Promise-based
-  getCoordinate(): Promise<{ latitude: number; longitude: number }> {
-    return new Promise((resolve, reject) => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            let latitude = position.coords.latitude;
-            let longitude = position.coords.longitude;
-            this.latitude = latitude;
-            this.longitude = longitude;
-            resolve({ latitude, longitude });
-          },
-          (error) => {
-            console.error('Error getting location: ', error);
-            reject(error);
-          }
-        );
-      } else {
-        console.error('Geolocation is not supported by this browser.');
-        reject(new Error('Geolocation not supported'));
-      }
-    });
+  // Fetch location manually (if needed after initialization)
+  fetchLocation() {
+    this.getLocation();
+    // After fetching, update latitude and longitude
+    if (this.cachedLocation) {
+      this.latitude = this.cachedLocation.latitude;
+      this.longitude = this.cachedLocation.longitude;
+    }
   }
 
-  fetchAndSendLocation() {
-    this.getCoordinate().then(coords => {
-      // this.sendLocation(coords.latitude, coords.longitude);
-      console.log(coords);
-    }).catch(error => {
-      console.error('Failed to get coordinates', error);
-    });
+  // Clear the cached location
+  clearLocation() {
+    // this.cachedLocation = null;
+    this.latitude = null;
+    this.longitude = null;
   }
-
-  // // Send location to API
-  // sendLocation(lat: number, lon: number) {
-  //   this.http.post('YOUR_API_ENDPOINT', { latitude: lat, longitude: lon })
-  //     .subscribe(response => console.log('Location sent', response));
-  // }
 }
