@@ -1,0 +1,8 @@
+<button (click)="getLocation()">Get Location (Callback)</button>
+<button (click)="fetchAndSendLocation()">Get Location (Promise)</button>
+
+<p *ngIf="latitude && longitude">Latitude: {{ latitude }}, Longitude: {{ longitude }}</p>
+
+
+
+<router-outlet />
